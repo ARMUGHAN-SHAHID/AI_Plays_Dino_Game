@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[88]:
+# In[1]:
 
 
 import numpy as np
@@ -52,16 +52,31 @@ class Data():
         if os.path.exists(X_data_path) and os.path.exists(Y_data_path):
             X=np.load(X_data_path)
             Y=np.load(Y_data_path)
-            self.X_train,self.X_test,self.Y_train,self.Y_test=train_test_split(X,Y,train_size=train_proportion)
+            np.random.shuffle(X)
+            np.random.shuffle(Y)
+            X_temp,self.X_test,Y_temp,self.Y_test=train_test_split(X,Y,train_size=train_proportion)
+            self.X_train,self.X_validation,self.Y_train,self.Y_validation=train_test_split(X_temp,Y_temp,train_size=train_proportion)
+            train_size=self.X_train.shape[0]
+            self.num_batches=int(train_size/self.batch_size)
+            X_temp=Y_temp=None
             X,Y=None,None
         else:
             print ("failed to load data")
     def get_next_batch(self):
-        train_size=self.X_train.shape[0]
-        num_batches=int(train_size/self.batch_size)
-        inds=np.arange(train_size)
+        inds=np.arange(self.X_train.shape[0])#shuffling training set for every new epoch
         np.random.shuffle(inds)
         X_train,Y_train=self.X_train[inds],self.Y_train[inds]
-        for i in np.arange(num_batches):
+        for i in np.arange(self.num_batches):
             yield X_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size],Y_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size]
+            
+    def get_shapes(self):
+        return {
+            'X_train shape': self.X_train.shape,
+            'Y_train shape': self.Y_train.shape,
+            'X_validation shape': self.X_validation.shape,
+            'Y_validation shape': self.Y_validation.shape,
+            'X_test shape': self.X_test.shape,
+            'Y_test shape': self.Y_test.shape
+        }
+    
 
