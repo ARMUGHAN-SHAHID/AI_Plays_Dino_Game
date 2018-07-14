@@ -68,7 +68,10 @@ class Data():
         X_train,Y_train=self.X_train[inds],self.Y_train[inds]
         for i in np.arange(self.num_batches):
             yield X_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size],Y_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size]
-            
+    
+    def get_validation_set(self):
+        return self.X_validation,self.Y_validation
+    
     def get_shapes(self):
         return {
             'X_train shape': self.X_train.shape,
