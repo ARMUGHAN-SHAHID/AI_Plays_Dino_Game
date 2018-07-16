@@ -55,9 +55,13 @@ class Data():
             np.random.shuffle(X)
             np.random.shuffle(Y)
             X_temp,self.X_test,Y_temp,self.Y_test=train_test_split(X,Y,train_size=train_proportion)
-            self.X_train,self.X_validation,self.Y_train,self.Y_validation=train_test_split(X_temp,Y_temp,train_size=train_proportion)
+            self.X_train,self.X_validation,self.Y_train,self.Y_validation=train_test_split(X_temp,Y_temp,test_size=200)
             train_size=self.X_train.shape[0]
             self.num_batches=int(train_size/self.batch_size)
+            self.X_train=self.preprocess_data(self.X_train)
+            self.X_validation=self.preprocess_data(self.X_validation)
+            self.X_test=self.preprocess_data(self.X_test)
+            
             X_temp=Y_temp=None
             X,Y=None,None
         else:
@@ -81,5 +85,10 @@ class Data():
             'X_test shape': self.X_test.shape,
             'Y_test shape': self.Y_test.shape
         }
-    
+    def preprocess_data(self,imgs):
+        if not (hasattr(self,"data_mean") and hasattr(self,"data_var")):
+            print ("calculating mean and var\n")
+            self.data_mean=np.mean(self.X_train,axis=0,keepdims=True)
+            self.data_var=np.var(self.X_train,axis=0,keepdims=True)
+        return (imgs-self.data_mean)/(self.data_var+0.00001)
 
