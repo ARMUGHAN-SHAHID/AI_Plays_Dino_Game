@@ -9,7 +9,7 @@ import os
 from sklearn.cross_validation import train_test_split
 
 
-# In[101]:
+# In[2]:
 
 
 class Data():
@@ -73,8 +73,10 @@ class Data():
         for i in np.arange(self.num_batches):
             yield X_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size],Y_train[(i*self.batch_size):(i*self.batch_size)+self.batch_size]
     
-    def get_validation_set(self):
-        return self.X_validation,self.Y_validation
+    def get_validation_set_batch(self):
+        num_batches_test=int(self.X_validation.shape[0]/self.batch_size)
+        for i in np.arange(num_batches_test):
+            yield self.X_validation[(i*self.batch_size):(i*self.batch_size)+self.batch_size],self.Y_validation[(i*self.batch_size):(i*self.batch_size)+self.batch_size]
     
     def get_shapes(self):
         return {
@@ -86,9 +88,9 @@ class Data():
             'Y_test shape': self.Y_test.shape
         }
     def preprocess_data(self,imgs):
-        if not (hasattr(self,"data_mean") and hasattr(self,"data_var")):
-            print ("calculating mean and var\n")
+        if not (hasattr(self,"data_mean") and hasattr(self,"data_std")):
+            print("calculating mean and std over training set\n")
             self.data_mean=np.mean(self.X_train,axis=0,keepdims=True)
-            self.data_var=np.var(self.X_train,axis=0,keepdims=True)
-        return (imgs-self.data_mean)/(self.data_var+0.00001)
+            self.data_std=np.std(self.X_train,axis=0,keepdims=True)
+        return (imgs-self.data_mean)/(self.data_std+0.00001)
 
