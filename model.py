@@ -101,6 +101,7 @@ class CNN_Model():
             self.model_variables=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.params.name_scope)#saving only the varuiables belonging to this scope
             self.saver=tf.train.Saver(var_list=self.model_variables)
             self.increment_epoch_op=tf.assign(self.epoch_no, self.epoch_no+1)#op to update number of epoch by + 1
+            self.model_trainable_variables=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.params.name_scope)
 
     def Build_model(self):
         self.build_model_till_logits()
@@ -114,7 +115,7 @@ class CNN_Model():
             self.accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
 
             optimizer=self.params.optimizer_fn(learning_rate=self.lr_placeholder)
-            self.grads_and_vars=optimizer.compute_gradients(loss=self.loss,var_list=self.model_variables)
+            self.grads_and_vars=optimizer.compute_gradients(loss=self.loss,var_list=self.model_trainable_variables)
             self.train_op=optimizer.apply_gradients(grads_and_vars=self.grads_and_vars,global_step=self.step_no)
 #             self.train_op=optimizer.minimize(loss = self.loss,global_step=self.step_no)
 
