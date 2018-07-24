@@ -13,7 +13,7 @@ import cv2
 
 
 class Env:
-    def __init__(self,env_name,convert_to_grayscale=True,crop=True,valid_Y=[0,-1],valid_X=[0,-1],resize=False,resize_Y=None,resize_X=None,normalize=True,num_of_frames_per_stack=1):
+    def __init__(self,env_name,convert_to_grayscale=True,crop=True,valid_Y=[0,-1],valid_X=[0,-1],resize=False,resize_Y=None,resize_X=None,normalize=True,num_of_frames_per_stack=1,repeat_action=4):
         
         self.steps=0
         self.env_name=env_name
@@ -26,7 +26,9 @@ class Env:
         self.resize_Y=resize_Y
         self.resize_X=resize_X
         self.normalize=normalize
+        self.repeat_action=repeat_action
         self.action_space=self.env.action_space.n
+        
         
         self.num_of_frames_per_stack=num_of_frames_per_stack
         self.frame_stack=None
@@ -64,7 +66,10 @@ class Env:
     
     def step(self,action):
         if not self.done:
-            next_frame,reward,self.done,info=self.env.step(action)
+            for i in np.arange(self.repeat_action):
+                next_frame,reward,self.done,info=self.env.step(action)
+                if self.done:
+                    break
             next_frame=self.preprocess(next_frame)
             self.steps+=1
 #             print('stepping')
